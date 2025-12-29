@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account</title>
+</head>
+<body>
+    <h1>Sign Up</h1>
+    <form action="" id="signUpForm">
+        <input type="text" placeholder="Fullname" name="fullname" required>
+        <input type="email" placeholder="Email Address" name="email" required>
+        <input type="text" placeholder="Profile Picture URL" name="profile" required>
+        <input type="text" placeholder="Password" name="password" required>
+        <button>Submit</button>
+    </form>
+</body>
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyCPsaTnEv7jA_kGv0M-4YqsYkbBDh1q7GU",
+    authDomain: "event-management-system-2573b.firebaseapp.com",
+    databaseURL: "https://event-management-system-2573b-default-rtdb.firebaseio.com",
+    projectId: "event-management-system-2573b",
+    storageBucket: "event-management-system-2573b.firebasestorage.app",
+    messagingSenderId: "559563898888",
+    appId: "1:559563898888:web:6f3fed6417b572b1ef11bd"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db =  getFirestore(app)
+  const colRef = collection(db, "users")
+  const auth = getAuth()
+
+
+  const signUpForm = document.getElementById("signUpForm")
+  signUpForm.addEventListener("submit", async(event)=>{
+    event.preventDefault()
+
+    let email = signUpForm.email.value
+    let password = signUpForm.password.value
+    let fullname = signUpForm.fullname.value
+    let profile = signUpForm.profile.value
+    console.log("Success");
+    
+
+    try {
+        const userCredentials = await createUserWithEmailAndPassword(auth, email, password)
+
+        const docSnapShot = await addDoc(colRef, {
+            uid: userCredentials.user.uid,
+            fullname: fullname,
+            email: email,
+            profile: profile,
+            password: password
+        })
+
+        // console.log(userCredentials);
+        // console.log(docSnapShot);
+
+        alert("Signup Successful")
+        window.location.href = "./signIn.html"
+        
+        
+    } catch (error) {
+        console.log(error.message);
+        
+    }
+  })
+</script>
+</html>
