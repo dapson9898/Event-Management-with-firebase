@@ -39,7 +39,6 @@
   const userId = sessionStorage.getItem('eventUserId');
   console.log(userId);
 
-  getUser()
 
   onAuthStateChanged(auth, (user) => {
     if (user) {
@@ -58,7 +57,7 @@
           await signOut(auth)
           sessionStorage.removeItem('eventUserId');
           alert("Logout successful")
-          window.location.href = "./signIn.html"
+        //   window.location.href = "./signIn.html"
       } catch (error) {
           console.log(error.message);
           
@@ -75,28 +74,15 @@ async function getUser() {
         }
 
         // Make sure collection name matches your Firestore collection
-        let docRef = doc(db, "users", userId); // Changed "user" to "users"
+        let docRef = doc(db, "users", userId); 
         console.log("Docref: ", docRef);
         
-        let docSnapShot = await getDoc(docRef);
         
-        // Check if document exists
-        if (docSnapShot.exists()) {
-            const userData = docSnapShot.data();
-            console.log("User data: ", userData);
-            
-            // Display user data
-            document.getElementById("display").textContent = `Welcome, ${userData.fullname || 'User'}!`;
-            
-            // Set profile picture if available
-            if (userData.profile) {
-                document.getElementById("profile").src = userData.profile;
-            }
-        } else {
-            console.log("No such document!");
-            alert("User not found");
-            // window.location.href = "./signIn.html";
-        }
+        let docSnapShot = await getDoc(docRef);
+        const userData = docSnapShot.data();
+        document.getElementById("display").textContent = `Welcome, ${userData.fullname || 'User'}!`;
+        document.getElementById("profile").src = userData.profile || "./ai image.jpeg";
+        
         
     } catch (error) {
         console.log("Error getting user:", error.message);

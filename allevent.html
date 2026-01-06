@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Event</title>
+    <style>
+      input, textarea{
+        display: block;
+      }
+      input[type="checkbox"]{
+        display: inline;
+      }
+      #modal{
+        border: 2px solid red;
+        width: 400px;
+        height: 400px;
+        position: absolute;
+        margin: auto;
+        top: 100px;
+        left: 200px;
+        display: none;
+        background: red;
+      }
+    </style>
+</head>
+<body>
+    <div id="display"></div>
+    
+    <!-- <form action="" id="formInput" >
+        <input type="text" placeholder="Name" name="name">
+        <input type="email" placeholder="Email Address" name="email">
+        <input type="text" placeholder="Phone no" name="phone">
+        <input type="text" placeholder="Company" name="company">
+        <input type="text" placeholder="Location" name="location">
+        <input type="date" name="date">
+        <input type="text" placeholder="Host" name="host">
+        <input type="text" placeholder="Image URL" name="image">
+        <textarea name="description" placeholder="Description"></textarea>
+        <label for="isdone">Event has been hosted?</label>
+        <input type="checkbox" name="isdone">
+        <input type="submit" id="submit" value="Create Event">
+        <input type="button" id="editEvent" value="Update Event" style="display: none;">
+    </form> -->
+    <div id="modal">
+
+    </div>
+    <!-- <button id="currentEventBtn">show</button> -->
+</body>
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+  import { getFirestore, collection, getDocs, doc, getDoc, addDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyCPsaTnEv7jA_kGv0M-4YqsYkbBDh1q7GU",
+    authDomain: "event-management-system-2573b.firebaseapp.com",
+    databaseURL: "https://event-management-system-2573b-default-rtdb.firebaseio.com",
+    projectId: "event-management-system-2573b",
+    storageBucket: "event-management-system-2573b.firebasestorage.app",
+    messagingSenderId: "559563898888",
+    appId: "1:559563898888:web:6f3fed6417b572b1ef11bd"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app)
+  const colRef = collection(db, "allEvent")
+
+  const fetchedEvents = []
+
+  async function getEvents(){
+    fetchedEvents.length = 0
+    try {
+        const querySnapShot = await getDocs (colRef)
+        querySnapShot.forEach(event => {
+            const data = {id: event.id, ...event.data()}
+            fetchedEvents.push(data)
+        });
+        console.log(fetchedEvents);
+        
+        displayEvent()
+        
+    } catch (error) {
+        console.log(error.message);
+    }
+  }
+
+  function displayEvent() {
+    let display = document.getElementById("display")
+    display.innerHTML = ""
+    
+    fetchedEvents.forEach((event, index) =>{
+      display.innerHTML +=
+        `
+        <h1>${event.name}</h1>
+        <a href="./index.html?id='${event.id}'">Open event page</a>
+        <button onclick = "updateEventFunction('${event.id}')" >Update Event</button>
+        <button onclick = "currentEventFunction('${event.id}')" >View Event</button><hr>
+        `
+      })  
+  }
+
+  async function currentEventFunction(id){
+    let modal = document.getElementById("modal")
+    modal.style.display = "block"
+    try {
+      let docRef = doc(db, "allEvent", id)
+      let docSnapShot = await getDoc(docRef)
+      docSnapShot = docSnapShot.data()
+      modal.innerHTML = 
+      `
+      <h2>Edit data for ${docSnapShot.name}
+      <button onclick="closeModals()">Close</button>
+      `
+      console.log("Hello", docSnapShot)
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
+  function closeModals(){
+    modal.style.display = "none"
+    modal.innerHTML = ``
+  }
+
+  let updateRef
+  async function updateEventFunction(id){
+    let modal = document.getElementById("modal")
+    modal.style.display = "block"
+    // document.getElementById("editEvent").style.display = "block"
+    try {
+      let docRef = doc(db, "allEvent", id)
+      updateRef = docRef
+      let docSnapShot = await getDoc(docRef)
+      docSnapShot = docSnapShot.data()
+
+      modal.innerHTML =
+      `
+      <button onclick="closeModals()">Close</button>
+      <form action="" id="formInput" >
+        <input type="text" placeholder="Name" name="name">
+        <input type="email" placeholder="Email Address" name="email">
+        <input type="text" placeholder="Phone no" name="phone">
+        <input type="text" placeholder="Company" name="company">
+        <input type="text" placeholder="Location" name="location">
+        <input type="date" name="date">
+        <input type="text" placeholder="Host" name="host">
+        <input type="text" placeholder="Image URL" name="image">
+        <textarea name="description" placeholder="Description"></textarea>
+        <label for="isdone">Event has been hosted?</label>
+        <input type="checkbox" name="isdone">
+        <input type="button" id="editEvent" value="Update Event">
+    </form>
+      `
+      
+      console.log("Hello", docSnapShot)
+      console.log("Date Created:",docSnapShot.dateCreated);
+      console.log("Event Date",docSnapShot.date);
+
+      formInput.name.value = docSnapShot.name
+      formInput.email.value = docSnapShot.email
+      formInput.phone.value = docSnapShot.phone
+      formInput.company.value = docSnapShot.company
+      formInput.date.value = docSnapShot.date
+      formInput.location.value = docSnapShot.location
+      formInput.host.value = docSnapShot.host
+      formInput.image.value = docSnapShot.image
+      formInput.description.value = docSnapShot.description
+      formInput.isdone.checked = docSnapShot.isdone
+
+      document.getElementById("editEvent").addEventListener("click", async ()=>{
+      let newEvent = {
+      name: formInput.name.value,
+      phone: formInput.phone.value,
+      email: formInput.email.value,
+      company: formInput.company.value,
+      description: formInput.description.value,
+      date: formInput.date.value,
+      location: formInput.location.value,
+      image: formInput.image.value,
+      host: formInput.host.value,
+      isdone: formInput.isdone.checked,
+      dateCreated: new Date()
+    }
+    try {
+      updateDoc(updateRef, newEvent)
+      alert("Document Updated Successfully.")
+      closeModals()
+      getEvents()
+    } catch (error) {
+      console.log(error.message);
+    }
+      })
+      
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
+
+  window.currentEventFunction = currentEventFunction
+  window.updateEventFunction = updateEventFunction
+  window.closeModals = closeModals
+  getEvents()
+ 
+</script>
+</html>
