@@ -14,7 +14,7 @@
 <script type="module">
   // Import the functions you need from the SDKs you need
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-  import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+  import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
   import { getFirestore, collection, getDoc, doc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
   // TODO: Add SDKs for Firebase products that you want to use
   // https://firebase.google.com/docs/web/setup#available-libraries
@@ -38,25 +38,25 @@
   const signOutBtn = document.getElementById("signOut")
   const userId = sessionStorage.getItem('eventUserId');
   console.log(userId);
-  
-//   async function getUser() {
-//       try {
-//         let docRef = doc(db, "users", userId)
-//         console.log("Docref: ",docRef);
-//         let docSnapShot = await getDoc(docRef)
-//         docSnapShot = docSnapShot.data()
-//         console.log("Docsnapshot: ",docSnapShot);
-        
-        
-//     } catch (error) {
-//         console.log(error.message);
-        
-//     }
-//   }
+
   getUser()
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      // User is signed in
+      console.log("User authenticated:", user.uid);
+      getUser(user.uid);
+    } else {
+      // User is not signed in, redirect to login
+      console.log("No user authenticated");
+      window.location.href = "./signIn.html";
+    }
+  });
+
   signOutBtn.addEventListener("click", async()=>{
       try {
           await signOut(auth)
+          sessionStorage.removeItem('eventUserId');
           alert("Logout successful")
           window.location.href = "./signIn.html"
       } catch (error) {
@@ -75,7 +75,7 @@ async function getUser() {
         }
 
         // Make sure collection name matches your Firestore collection
-        let docRef = doc(db, "users", "twVLSq5Dodkl7boMIQju"); // Changed "user" to "users"
+        let docRef = doc(db, "users", userId); // Changed "user" to "users"
         console.log("Docref: ", docRef);
         
         let docSnapShot = await getDoc(docRef);
@@ -105,32 +105,5 @@ async function getUser() {
 }
   
 </script>
-<!-- <script>
-    let array = [
-        {
-            name: "ola",
-            age: 25
-        },
-        {
-            name: "Anna",
-            age: 23
-        }
-    ]
 
-    array.forEach((arr, index)=>{
-        console.log(array);
-        // sayHello(arr.name)
-        document.getElementById("display").innerHTML+=
-        `
-        <h3>${arr.name}</h3>
-        <button onclick="sayHello('${arr.name}')">Say my name</button>
-        `
-    })
-
-    function sayHello(name){
-        console.log("Hello", name);
-        
-    }
-
-</script> -->
 </html>

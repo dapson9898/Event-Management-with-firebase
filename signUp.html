@@ -11,7 +11,7 @@
         <input type="text" placeholder="Fullname" name="fullname" required>
         <input type="email" placeholder="Email Address" name="email" required>
         <input type="text" placeholder="Profile Picture URL" name="profile" required>
-        <input type="text" placeholder="Password" name="password" required>
+        <input type="password" placeholder="Password" name="password" required>
         <button>Submit</button>
     </form>
 </body>
@@ -19,7 +19,7 @@
   // Import the functions you need from the SDKs you need
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
   import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, setDoc, doc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
   // TODO: Add SDKs for Firebase products that you want to use
   // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -55,12 +55,11 @@
     try {
         const userCredentials = await createUserWithEmailAndPassword(auth, email, password)
 
-        const docSnapShot = await addDoc(colRef, {
+        const docSnapShot = await setDoc(doc(db, "users", userCredentials.user.uid), {
             uid: userCredentials.user.uid,
             fullname: fullname,
             email: email,
             profile: profile,
-            password: password
         })
 
         // console.log(userCredentials);
